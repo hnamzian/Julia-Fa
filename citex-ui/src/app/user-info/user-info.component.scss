@@ -1,0 +1,28 @@
+.gateway-container {
+    width: 100%;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.right {
+    float: right;
+    // margin-left: auto;
+}
+
+.left {
+    margin-right: auto;
+}
+
+.sender-container {
+    padding-bottom: 10px;
+    border-top: 1px solid #DDD;
+    border-bottom: 1px solid #DDD;
+
+
+    .balance-container {
+        display: flex;
+        direction: row;
+    }
+}

@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import * as Web3 from '../web3/dist/web3.min.js';
 import { Account } from './models/account';
+import { Token } from './models/token';
+import { User } from './models/user';
 
 declare let require: any;
 declare let window: any;
@@ -13,7 +15,6 @@ let tokenAbi = require('../../../build/contracts/citexToken.json');
 
 export class TokenService {
     private web3Provider: null;
-    private contracts: {};
 
     constructor() {
         if (typeof window.web3 !== 'undefined') {
@@ -25,113 +26,100 @@ export class TokenService {
         window.web3 = new Web3(this.web3Provider);
     }
 
-    async getTokenInfo() {
+    // returns promsie; 
+    // if contract found resolves it
+    // else if address is invalid it rejects 'Contract not found' or 'invalid address'
+    // ToDo: what if provider not found
+    async _citexToken()
+    async _citexToken(_address)
+    
+    async _citexToken(_address?: string) {
         const networkId = await window.web3.eth.net.getId()
-        const address = tokenAbi.networks[networkId].address
+        let address = (_address) ? (_address) : (tokenAbi.networks[networkId].address)
+        if (!address) throw Error('Contract not found')
         const CitexToken = new window.web3.eth.Contract(tokenAbi.abi, address)
+        return CitexToken
+    }
+
+    /**
+     * getters
+     */
+    async getTokenInfo(): Promise<Token>
+    async getTokenInfo(_address): Promise<Token>
+
+    async getTokenInfo(_address?: string): Promise<Token> {
+        let CitexToken = (_address) ? (await this._citexToken(_address)) : (await this._citexToken());
         
+        let address = CitexToken.options.address;
+        let owner = await CitexToken.methods.owner().call()
         let name = await CitexToken.methods.name().call()
         let symbol = await CitexToken.methods.symbol().call()
+        let decimals = await CitexToken.methods.decimals().call()
         let totalSupply = await CitexToken.methods.totalSupply().call()
+        totalSupply = window.web3.utils.fromWei(totalSupply, 'ether')
 
+        return { address, owner, name, symbol, totalSupply, decimals }
+    }
+
+    async getAccount() {
+        const account = await window.web3.eth.getCoinbase()
+        return account
+    }
+
+    async getEtherBalance(account) {
+        const balance = await window.web3.eth.getBalance(account)
+        return (window.web3.utils.fromWei(balance, 'ether'))
+    }
+
+    async getTokenBalance(account) {
+        const CitexToken = await this._citexToken()
+        const balance = await CitexToken.methods.balanceOf(account).call()
+        return (window.web3.utils.fromWei(balance, 'ether'))
+    }
+
+    async getAccountInfo(): Promise<Account>
+    async getAccountInfo(_address): Promise<Account>
+
+    async getAccountInfo(_address?): Promise<Account> {
+        let address = _address ? _address : (await this.getAccount());
+        let balance: Number = await this.getEtherBalance(address)
+        let tokens: Number = await this.getTokenBalance(address)
         return {
-            name,
-            symbol,
-            totalSupply
+            address: address,
+            balance: balance, 
+            tokens: tokens
         }
     }
 
-    getAccount(): Promise<string> {
-        return new Promise((resolve, reject) => {
-            window.web3.eth.getCoinbase(function (err, account) {
-                if (err === null) {
-                    resolve(account)
-                } else {
-                    reject(err)
-                }
-            });
-        })
+    async getUserByEmail(_emailHash): Promise<User> {
+        const fromAddress = await this.getAccount()
+        const CitexToken = await this._citexToken()
+        const tokens = await CitexToken.methods.getUserInfo(_emailHash).call({from: fromAddress})
+        const weiTokens = window.web3.utils.fromWei(tokens, 'ether')
+        return {email: _emailHash, tokens: weiTokens}
     }
 
-    getEtherBalance(account): Promise<number> {
-        return new Promise((resolve, reject) => {
-            window.web3.eth.getBalance(account, function (err, balance) {
-                if (err === null) {
-                    resolve((window.web3.utils.fromWei(balance, "ether")));
-                } else {
-                    reject(0);
-                }
-            });
-        })
+    async getUserById(_id) {
+        const fromAddress = await this.getAccount()
+        const CitexToken = await this._citexToken()
+        const user = await CitexToken.methods.emails(_id).call({from: fromAddress})
+        console.log(user)
+        return user
     }
 
-    async getTokenBalance(account): Promise<Number> {
-        try {
-            const networkId = await window.web3.eth.net.getId()
-            const address = tokenAbi.networks[networkId].address
-            const CitexToken = new window.web3.eth.Contract(tokenAbi.abi, address)
-            const balance = await CitexToken.methods.balanceOf(account).call()
-            return (window.web3.utils.fromWei(balance, 'ether'))
-        } catch(ex) {
-            throw Error(ex)
-        }
-    
+    /**
+     * Setters
+     */
+    async transferToken(_transferTo, _amount) {
+        const weiAmount = window.web3.utils.toWei(_amount, 'ether')
+        const CitexToken = await this._citexToken()
+        return CitexToken.methods.transfer(_transferTo, weiAmount)
     }
 
-    async getAccountInfo() {
-        let address: string = await this.getAccount()
-        if (address) {
-            let balance: Number = await this.getEtherBalance(address)
-            let tokens: Number = await this.getTokenBalance(address)
-            return {
-                address: address,
-                balance: balance, 
-                tokens: tokens
-            }
-        }
-        return {
-            address: '0x0',
-            balance: Number(0), 
-            tokens: Number(0)
-        }
-    }
-
-    async transferToken(_transferFrom, _transferTo, _amount) {
-        // try {
-        //     const networkId = await window.web3.eth.net.getId()
-        //     const address = tokenAbi.networks[networkId].address
-        //     const CitexToken = new window.web3.eth.Contract(tokenAbi.abi, address)
-
-        //     const result = await CitexToken.methods.transfer(_transferTo, _amount).send({ from: _transferFrom })
-        //     return result
-
-        // } catch(ex) {
-        //     throw Error(ex)
-        // }
-        return new Promise((resolve, reject) => {
-            window.web3.eth.net.getId()
-            .then(networkId => {
-                const address = tokenAbi.networks[networkId].address
-                const CitexToken = new window.web3.eth.Contract(tokenAbi.abi, address)
-
-                CitexToken.methods.transfer(_transferTo, _amount).send({ from: _transferFrom })
-                .on('transactionHash', hash => {
-                    resolve(hash)
-                })
-                .on('receipt', receipt => {
-                    console.log(receipt)
-                    resolve(receipt)
-                })
-                .on('error', error => {
-                    throw Error(error)
-                })
-            })
-            .catch(error => {
-                console.log(error)
-                reject(error)
-            })
-        })
-
+    async updateUser(_emailHash, _balance) {
+        const weiBalance = window.web3.utils.toWei(_balance, 'ether')
+        const CitexToken = await this._citexToken()
+        return CitexToken.methods.setUserInfo(_emailHash, weiBalance)
     }
 
 }

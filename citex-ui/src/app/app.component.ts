@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TokenService } from './token.service';
 import { Account } from './models/account';
 
@@ -8,7 +8,7 @@ import { Account } from './models/account';
     styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-    title = 'your first DApp in Angular';
+    title = 'Token Gateway';
     accounts: any;
     transferFrom = '0x0';
     balance;
@@ -18,15 +18,21 @@ export class AppComponent {
     remarks = '';
 
     constructor(private tokenService: TokenService) {
-        
+        // 0x474a8dcd54a1baa6580c559caa395f1fc19c2728
     }
 
     async ngOnInit() {
-        let tokenInfo = await this.tokenService.getTokenInfo()
-        console.log(tokenInfo)
 
-        let account = await this.getAccount()
-        console.log(account)
+        // try {
+        //     let tokenInfo = await this.tokenService.getTokenInfo()
+        //     console.log(tokenInfo)
+    
+        //     let account = await this.getAccount()
+        //     console.log(account)
+        // } catch(ex) {
+        //     console.log(ex)
+        // }
+        
     }
 
     getAccount = async () => {
@@ -45,11 +51,13 @@ export class AppComponent {
             this.tokens = await this.tokenService.getTokenBalance(this.transferFrom)
             console.log('tokens (before):', this.tokens)
 
-            let result = await this.tokenService.transferToken(this.transferFrom, this.transferTo, this.amount)
-            console.log(result)
+            let transaction = await this.tokenService.transferToken(this.transferTo, this.amount)
 
-            this.tokens = await this.tokenService.getTokenBalance(this.transferFrom)
-            console.log('tokens (after):', this.tokens)
+            transaction.send({ from: this.transferFrom })
+            .on('transactionHash', console.log)
+            .on('receipt', console.log)
+            .on('error', console.log)
+
         } catch(ex) {
             console.log(ex.message)
         }

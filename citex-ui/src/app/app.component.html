@@ -1,5 +1,5 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
+<!-- <div style="text-align:center">
     <h1>
         Welcome to {{title}}!
     </h1>
@@ -26,4 +26,28 @@
         <button type="submit" class="trfbtn" (click)="transferToken($event)">Transfer Ether</button>&nbsp;&nbsp;
     </div>
 
-</form>
+</form> -->
+
+<main>
+    <div class="container">
+        <div class="column">
+            <div class="gw-container">
+                <app-gateway></app-gateway>
+            </div>
+            <div class="user-container">
+                <user-info></user-info>
+            </div>
+            <div class="owner-container">
+                <app-ownership></app-ownership>
+            </div>
+        </div>
+        <div class="column">
+            <div class="token-container">
+                <token-info></token-info>
+            </div>
+            <div class="account-container">
+                <account-info></account-info>
+            </div>
+        </div>
+    </div>
+</main>

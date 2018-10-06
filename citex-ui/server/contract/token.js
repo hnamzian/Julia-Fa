@@ -2,10 +2,8 @@ const fs = require('fs')
 const path = require('path')
 const web3 = require('../network/web3')
 
-
 const tokenABI = JSON.parse(fs.readFileSync(path.join(__dirname, '../../../build/contracts/citexToken.json')))
 const abi = tokenABI.abi
-
 
 async function getNetworkId() {
     const networkId = await web3.eth.net.getId()

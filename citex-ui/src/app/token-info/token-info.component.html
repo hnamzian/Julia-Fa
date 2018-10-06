@@ -1,0 +1,24 @@
+<div class="account-container">
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title>
+                <h2>Token Info</h2>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <form class="gateway-form">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Cotnract Address" (keyup.enter)="updateToken($event)">
+                </mat-form-field>
+            </form>
+            <div class="info-container full-width">
+                <p>Address:    <span>{{ token.address }}</span></p>
+                <p>Name:    <span>{{ token.name }}</span></p>
+                <p>Symbol:  <span>{{ token.symbol }}</span></p>
+                <p>Total Tokens:    <span>{{ token.totalSupply }}</span></p>
+                <p>decimals:    <span>{{ token.decimals }}</span></p>
+                <p>Owner:   <span>{{ token.owner }}</span></p>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

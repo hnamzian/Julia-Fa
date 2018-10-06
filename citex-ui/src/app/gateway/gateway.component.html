@@ -1,0 +1,29 @@
+<div class="gateway-container">
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title-group>
+                <mat-card-title>
+                    <h2>Gateway</h2>
+                </mat-card-title>
+            </mat-card-title-group>
+        </mat-card-header>
+        <mat-card-content>
+            <div style="padding: 10px; color: #555; font-size: 15px;">
+                From: {{ account.address }}
+                <span class="right">Tokens: {{ account.tokens }} CIX</span>
+            </div>
+            <form class="gateway-form">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Destination Address" #address>
+                </mat-form-field>
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Tokens" #tokens>
+                </mat-form-field>
+            </form>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="accent" (click)="transferToken(address.value, tokens.value)">Transfre</button>
+            <button mat-button color="primary">Cancel</button>
+        </mat-card-actions>
+    </mat-card>
+</div>

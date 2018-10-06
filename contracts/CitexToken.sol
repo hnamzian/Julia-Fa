@@ -1,9 +1,10 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/ownership/Claimable.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
+import "./Identification.sol";
 
-contract citexToken is StandardToken, Claimable {
+contract CitexToken is StandardToken, Identification {
+
     uint8 public decimals = 18;
     uint256 totalSupply_ = 1000000 * 10**uint256(decimals);
     string public name = "citex";
@@ -20,7 +21,7 @@ contract citexToken is StandardToken, Claimable {
     
     function totalSupply() public view returns (uint256) {
         return totalSupply_;
-     }
+    }
 
     function changeTokenName(string _name) public onlyOwner {
         name = _name;
