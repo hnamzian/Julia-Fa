@@ -1,8 +1,8 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/ownership/Claimable.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
-contract Identification is Claimable {
+contract Identification is Ownable {
 
     event UserUpdated(string _emailHash, uint256 _balance);
 

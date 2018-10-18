@@ -1,4 +1,5 @@
 /node_modules
-/citex-ui/node_modules
-/citex-ui/server/node_modules
-/citex-ui/dist
+/build
+/test
+/www/ng
+/www/node/node_modules
